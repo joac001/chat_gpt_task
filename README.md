@@ -1,0 +1,1 @@
+On 13/05/2023 i was tasked to develop a simple app to chat with chat-gpr IA. Here's the repository, containin all the development history and code. 
