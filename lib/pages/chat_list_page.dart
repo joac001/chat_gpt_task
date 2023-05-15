@@ -2,22 +2,30 @@ import 'package:chat_gpt_task/main.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+// PAGES
+import '../pages/in_chat_page.dart';
+
+// OBJECTS
 import '../objects/chat.dart';
+
+const fontColor = Color(0xFFD6CFC6);
 
 class ChatList extends StatelessWidget {
   const ChatList({super.key});
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        AppBar(
-          title: const Text('Whats up gpt'),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-        ),
-        // SizedBox(width: MediaQuery.of(context).size.width, height: 50),
-        const Expanded(child: List()),
-        const NavBar(),
-      ],
+    return Scaffold(
+      body: Column(
+        children: [
+          AppBar(
+            title: const Text('Whats up gpt'),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          ),
+          // SizedBox(width: MediaQuery.of(context).size.width, height: 50),
+          const Expanded(child: List()),
+          const NavBar(),
+        ],
+      ),
     );
   }
 }
@@ -52,14 +60,19 @@ class ListItem extends StatelessWidget {
     var itemStyle = ElevatedButton.styleFrom(
       backgroundColor:
           Theme.of(context).colorScheme.background, //const Color(0xFF5D576B),
-      side: const BorderSide(width: 4, color: Color(0xFFA29C94)),
+      side: const BorderSide(width: 2, color: fontColor),
     );
 
     return Padding(
       padding: const EdgeInsets.all(10),
       child: ElevatedButton(
-        onPressed: () => {},
         style: itemStyle,
+        onPressed: () => {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ChatView(chat: chat)),
+          ),
+        },
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Row(
@@ -69,13 +82,13 @@ class ListItem extends StatelessWidget {
                 chat.title,
                 style: const TextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFD6CFC6)),
+                    fontWeight: FontWeight.normal,
+                    color: fontColor),
               ),
               const Icon(
                 Icons.arrow_right_rounded,
                 size: 40,
-                color: Color(0xFFD6CFC6),
+                color: fontColor,
               ),
             ],
           ),
