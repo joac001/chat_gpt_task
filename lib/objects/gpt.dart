@@ -3,7 +3,7 @@ import 'dart:convert';
 
 const endPoint = 'https://api.openai.com/v1/';
 const token =
-    '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'; // <-- API KEY
+    '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'; // <-- API KEY
 
 class GPT {
   static var client = http.Client();
@@ -23,6 +23,7 @@ class GPT {
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
+    //! DEBUG
     print(response.statusCode);
 
     if (response.statusCode == 200) {
