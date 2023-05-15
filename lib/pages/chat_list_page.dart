@@ -18,7 +18,10 @@ class ChatList extends StatelessWidget {
       body: Column(
         children: [
           AppBar(
-            title: const Text('Whats up gpt'),
+            title: const Text(
+              'Whats up gpt?',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
           const Expanded(child: List()),
