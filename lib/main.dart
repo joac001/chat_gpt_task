@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
       create: (context) => AppState(),
       child: MaterialApp(
         title: 'Chat-gpt task',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
           scaffoldBackgroundColor: backgroundColor,

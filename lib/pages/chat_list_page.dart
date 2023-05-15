@@ -21,7 +21,6 @@ class ChatList extends StatelessWidget {
             title: const Text('Whats up gpt'),
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
-          // SizedBox(width: MediaQuery.of(context).size.width, height: 50),
           const Expanded(child: List()),
           const NavBar(),
         ],
@@ -58,8 +57,7 @@ class ListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var itemStyle = ElevatedButton.styleFrom(
-      backgroundColor:
-          Theme.of(context).colorScheme.background, //const Color(0xFF5D576B),
+      backgroundColor: Theme.of(context).colorScheme.background,
       side: const BorderSide(width: 2, color: fontColor),
     );
 
@@ -99,7 +97,10 @@ class ListItem extends StatelessWidget {
 }
 
 class NavBar extends StatelessWidget {
-  const NavBar({super.key});
+  const NavBar({
+    super.key,
+  });
+
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
