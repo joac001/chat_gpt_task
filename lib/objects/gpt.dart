@@ -2,8 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 const endPoint = 'https://api.openai.com/v1/';
-const token =
-    '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'; // <-- API KEY
+const token = ''; // <-- API KEY
 
 class GPT {
   static var client = http.Client();
