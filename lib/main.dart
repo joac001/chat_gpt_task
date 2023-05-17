@@ -51,7 +51,7 @@ class AppState extends ChangeNotifier {
 //! DEBUG <---------------------------------------------------------------------
   late Chat c;
   void initChat() {
-    c = Chat(title: 'New chat', appState: context);
+    c = Chat(title: 'New chat', index: chats.length);
   }
 
   void update() {
@@ -64,5 +64,13 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeChat({required chat}) {}
+  void removeChat({required chat}) {
+    for (Chat c in chats) {
+      if (chat.index == c.index) {
+        chats.removeAt(c.index);
+        notifyListeners();
+        break;
+      }
+    }
+  }
 }

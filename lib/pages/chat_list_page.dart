@@ -64,37 +64,75 @@ class ListItem extends StatelessWidget {
       side: const BorderSide(width: 2, color: fontColor),
     );
 
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: ElevatedButton(
-        style: itemStyle,
-        onPressed: () => {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ChatView(chat: chat)),
-          ),
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                chat.title,
-                style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.normal,
-                    color: fontColor),
-              ),
-              const Icon(
-                Icons.arrow_right_rounded,
-                size: 40,
-                color: fontColor,
-              ),
-            ],
+    // var appState = context.watch<AppState>();
+
+    return GestureDetector(
+      onPanUpdate: (details) => {
+        if (details.delta.dx > 0) {_showMyDialog(context: context)}
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: ElevatedButton(
+          style: itemStyle,
+          onPressed: () => {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ChatView(chat: chat)),
+            ),
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  chat.title,
+                  style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.normal,
+                      color: fontColor),
+                ),
+                const Icon(
+                  Icons.arrow_right_rounded,
+                  size: 40,
+                  color: fontColor,
+                ),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _showMyDialog({required BuildContext context}) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: const Text(
+            'Are you sure you want to delete this chat?',
+            style: TextStyle(),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Ok'),
+              onPressed: () {
+                //! HOW DO I DELETE FROM HERE? <--------------------------------
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
