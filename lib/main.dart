@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => AppState(),
+      create: (context) => AppState(context: context),
       child: MaterialApp(
         title: 'Chat-gpt task',
         debugShowCheckedModeBanner: false,
@@ -39,14 +39,30 @@ class MyApp extends StatelessWidget {
 }
 
 class AppState extends ChangeNotifier {
-  Chat chat = Chat(title: 'hola');
+  AppState({
+    required this.context,
+  });
+
+//? DON'T LIKE THIS
+  BuildContext context;
+
   var chats = <Chat>[];
 
-  var activePage = 0;
+//! DEBUG <---------------------------------------------------------------------
+  late Chat c;
+  void initChat() {
+    c = Chat(title: 'New chat', appState: context);
+  }
+
+  void update() {
+    notifyListeners();
+  }
 
   void addChat({required Chat chat}) {
     chats.add(chat);
-    // chats.clear();
+    //! chats.clear(); <--------------------------------------------------------
     notifyListeners();
   }
+
+  void removeChat({required chat}) {}
 }

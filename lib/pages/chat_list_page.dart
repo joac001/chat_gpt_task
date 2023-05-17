@@ -120,7 +120,8 @@ class NavBar extends StatelessWidget {
               elevation: 0,
               minimumSize: const Size(75, 75),
             ),
-            onPressed: () => {appState.addChat(chat: appState.chat)},
+            onPressed: () =>
+                {appState.initChat(), appState.addChat(chat: appState.c)},
             child: const Icon(Icons.add, size: 30),
           ),
         ],
