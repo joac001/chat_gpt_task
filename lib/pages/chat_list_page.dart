@@ -12,6 +12,7 @@ const fontColor = Color(0xFFD6CFC6);
 
 class ChatList extends StatelessWidget {
   const ChatList({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,17 +25,28 @@ class ChatList extends StatelessWidget {
             ),
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
-          const Expanded(child: List()),
+          Expanded(child: List(currentChatList: this)),
           const NavBar(),
         ],
       ),
     );
   }
+
+  void deleteChat({required BuildContext context, required deletedChat}) {
+    var appState = Provider.of<AppState>(context, listen: false);
+    // var appState = context.watch<AppState>();
+    appState.removeChat(chat: deletedChat);
+  }
 }
 
 // WIDGETS
 class List extends StatelessWidget {
-  const List({super.key});
+  const List({
+    super.key,
+    required this.currentChatList,
+  });
+
+  final ChatList currentChatList;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +55,8 @@ class List extends StatelessWidget {
 
     return ListView(
       children: [
-        for (Chat chat in chats) ListItem(chat: chat),
+        for (Chat chat in chats)
+          ListItem(chat: chat, currentChatList: currentChatList),
       ],
     );
   }
@@ -53,9 +66,11 @@ class ListItem extends StatelessWidget {
   const ListItem({
     super.key,
     required this.chat,
+    required this.currentChatList,
   });
 
   final Chat chat;
+  final ChatList currentChatList;
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +78,6 @@ class ListItem extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.background,
       side: const BorderSide(width: 2, color: fontColor),
     );
-
-    // var appState = context.watch<AppState>();
 
     return GestureDetector(
       onLongPress: () => {_showMyDialog(context: context)},
@@ -118,8 +131,13 @@ class ListItem extends StatelessWidget {
             TextButton(
               child: const Text('Ok'),
               onPressed: () {
-                //! HOW DO I DELETE FROM HERE? <--------------------------------
-                Navigator.of(context).pop();
+                //! DELETE CHAT FROM LIST
+                currentChatList.deleteChat(context: context, deletedChat: chat);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => currentChatList),
+                );
               },
             ),
             TextButton(

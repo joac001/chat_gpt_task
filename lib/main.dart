@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => AppState(context: context),
+      create: (context) => AppState(),
       child: MaterialApp(
         title: 'Chat-gpt task',
         debugShowCheckedModeBanner: false,
@@ -39,13 +39,6 @@ class MyApp extends StatelessWidget {
 }
 
 class AppState extends ChangeNotifier {
-  AppState({
-    required this.context,
-  });
-
-//? DON'T LIKE THIS
-  BuildContext context;
-
   var chats = <Chat>[];
 
   late Chat c;
