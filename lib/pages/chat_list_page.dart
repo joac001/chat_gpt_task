@@ -133,11 +133,7 @@ class ListItem extends StatelessWidget {
               onPressed: () {
                 //! DELETE CHAT FROM LIST
                 currentChatList.deleteChat(context: context, deletedChat: chat);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (BuildContext context) => currentChatList),
-                );
+                Navigator.pop(context);
               },
             ),
             TextButton(
