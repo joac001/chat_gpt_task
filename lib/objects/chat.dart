@@ -1,10 +1,15 @@
+import 'package:flutter/material.dart';
+
+import './message.dart';
+
 class Chat {
   Chat({
     required this.title,
     required this.index,
   });
 
-  List<String>? messages;
+  List<Message> messages = <Message>[];
+  List<Widget> bubbleList = <Widget>[];
   String title;
   int index;
 
@@ -19,6 +24,16 @@ class Chat {
   //     _priority = 0;
   //   }
   // }
+
+  void addMessage({required Widget bubble}) {
+    Message message = Message(bubble: bubble);
+    messages.add(message);
+    bubbleList.add(message.bubble);
+  }
+
+  List<Widget> getMessagesList() {
+    return bubbleList;
+  }
 
   void setTitle({required newTitle}) {
     title = newTitle;

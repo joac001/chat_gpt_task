@@ -1,3 +1,4 @@
+import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:chat_gpt_task/main.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +10,6 @@ class ChatView extends StatelessWidget {
     super.key,
     required this.chat,
   });
-
   final Chat chat;
 
   @override
@@ -20,16 +20,17 @@ class ChatView extends StatelessWidget {
       },
       child: Scaffold(
         body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           mainAxisSize: MainAxisSize.max,
           children: [
             // TITLE
             ChatTitle(chat: chat),
 
             // MESAGGES VIEW
-            Expanded(child: ListView()),
+            Expanded(child: MessageList(chat: chat)),
 
             // PROMT INPUT BELOW
-            const Prompt(),
+            Prompt(chat: chat, currentChatView: this),
           ],
         ),
       ),
@@ -58,11 +59,13 @@ class ChatTitle extends StatelessWidget {
             width: MediaQuery.of(context).size.width - 90,
             height: 50,
             child: Card(
-              child: Text(
-                chat.title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w300,
+              child: Center(
+                child: Text(
+                  chat.title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w300,
+                  ),
                 ),
               ),
             ),
@@ -71,18 +74,43 @@ class ChatTitle extends StatelessWidget {
           //EDIT BUTTON
           ElevatedButton(
             onPressed: () => {
+              _showMyDialog(context: context),
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => EditTitle(chat: chat),
                 ),
-              ),
+              )
             },
             style: ElevatedButton.styleFrom(minimumSize: const Size(45, 45)),
             child: const Icon(Icons.edit),
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _showMyDialog({required BuildContext context}) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: const Text(
+            'This name will be updated once you close this chat!',
+            style: TextStyle(),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Ok'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -107,18 +135,6 @@ class EditTitle extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Card(
-              color: Colors.red,
-              margin: const EdgeInsets.only(bottom: 15, left: 15, right: 15),
-              child: Container(
-                alignment: Alignment.topCenter,
-                padding: const EdgeInsets.all(16),
-                child: const Text(
-                  'The name of the chat will update once you close the chat',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
             Padding(
               padding: EdgeInsets.only(
                 left: halfWidth,
@@ -138,8 +154,11 @@ class EditTitle extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 10, right: 5),
                   child: ElevatedButton(
                     onPressed: () => {
-                      chat.setTitle(newTitle: myController.text),
-                      appState.update(),
+                      if (myController.text.isNotEmpty)
+                        {
+                          chat.setTitle(newTitle: myController.text),
+                          appState.update(),
+                        },
                       Navigator.pop(context),
                     },
                     style: ElevatedButton.styleFrom(
@@ -167,11 +186,36 @@ class EditTitle extends StatelessWidget {
   }
 }
 
-class Prompt extends StatelessWidget {
-  const Prompt({super.key});
+class MessageList extends StatelessWidget {
+  const MessageList({super.key, required this.chat});
+
+  final Chat chat;
 
   @override
   Widget build(BuildContext context) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height - 140,
+      child: ListView(
+        children: [
+          for (var bubble in chat.bubbleList) bubble,
+        ],
+      ),
+    );
+  }
+}
+
+class Prompt extends StatelessWidget {
+  const Prompt({super.key, required this.chat, required this.currentChatView});
+
+  final Chat chat;
+  final ChatView currentChatView;
+
+  @override
+  Widget build(BuildContext context) {
+    final myController = TextEditingController();
+    var appState = context.watch<AppState>();
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -179,13 +223,21 @@ class Prompt extends StatelessWidget {
         children: [
           SizedBox(
             width: MediaQuery.of(context).size.width - 90,
-            height: 50,
-            child: Container(
-              alignment: Alignment.center,
-              child: const Card(
-                child: TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Prompt...',
+            height: 100,
+            child: Expanded(
+              child: Container(
+                alignment: Alignment.center,
+                child: Card(
+                  child: TextField(
+                    controller: myController,
+                    maxLines: null,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                      isDense: true,
+                      contentPadding: EdgeInsets.only(
+                          left: 5, bottom: 15, top: 15, right: 5),
+                    ),
                   ),
                 ),
               ),
@@ -193,12 +245,37 @@ class Prompt extends StatelessWidget {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(minimumSize: const Size(45, 45)),
-            onPressed: () => {},
+            onPressed: () => {
+              sendMessage(
+                  controller: myController, chat: chat, context: context),
+              appState.update(),
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => currentChatView),
+              ),
+            },
             child: const Icon(Icons.send),
           ),
           SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
         ],
       ),
     );
+  }
+
+  void sendMessage(
+      {required TextEditingController controller,
+      required Chat chat,
+      required BuildContext context}) {
+    if (controller.text.isNotEmpty) {
+      Widget bubble = BubbleSpecialThree(
+        text: controller.text,
+        color: Colors.blueGrey,
+        tail: true,
+        isSender: true,
+        textStyle: const TextStyle(color: Colors.white, fontSize: 16),
+      );
+      chat.addMessage(bubble: bubble);
+    }
   }
 }

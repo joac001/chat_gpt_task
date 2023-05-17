@@ -67,9 +67,7 @@ class ListItem extends StatelessWidget {
     // var appState = context.watch<AppState>();
 
     return GestureDetector(
-      onPanUpdate: (details) => {
-        if (details.delta.dx > 0) {_showMyDialog(context: context)}
-      },
+      onLongPress: () => {_showMyDialog(context: context)},
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: ElevatedButton(

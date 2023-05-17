@@ -48,7 +48,6 @@ class AppState extends ChangeNotifier {
 
   var chats = <Chat>[];
 
-//! DEBUG <---------------------------------------------------------------------
   late Chat c;
   void initChat() {
     c = Chat(title: 'New chat', index: chats.length);
@@ -60,7 +59,6 @@ class AppState extends ChangeNotifier {
 
   void addChat({required Chat chat}) {
     chats.add(chat);
-    //! chats.clear(); <--------------------------------------------------------
     notifyListeners();
   }
 
