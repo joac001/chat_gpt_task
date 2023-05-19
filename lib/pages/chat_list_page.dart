@@ -34,7 +34,6 @@ class ChatList extends StatelessWidget {
 
   void deleteChat({required BuildContext context, required deletedChat}) {
     var appState = Provider.of<AppState>(context, listen: false);
-    // var appState = context.watch<AppState>();
     appState.removeChat(chat: deletedChat);
   }
 }
@@ -131,7 +130,6 @@ class ListItem extends StatelessWidget {
             TextButton(
               child: const Text('Ok'),
               onPressed: () {
-                //! DELETE CHAT FROM LIST
                 currentChatList.deleteChat(context: context, deletedChat: chat);
                 Navigator.pop(context);
               },
@@ -170,8 +168,10 @@ class NavBar extends StatelessWidget {
               elevation: 0,
               minimumSize: const Size(75, 75),
             ),
-            onPressed: () =>
-                {appState.initChat(), appState.addChat(chat: appState.c)},
+            onPressed: () => {
+              appState.initChat(),
+              appState.addChat(chat: appState.c),
+            },
             child: const Icon(Icons.add, size: 30),
           ),
         ],
