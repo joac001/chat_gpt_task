@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../objects/chat.dart';
+import '../objects/gpt.dart';
 
 class ChatView extends StatelessWidget {
   const ChatView({
@@ -98,8 +99,7 @@ class ChatTitle extends StatelessWidget {
         return AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: const Text(
-            'This name will be updated once you close this chat!',
-            style: TextStyle(),
+            'The name will be updated once you close the chat or send a new message!',
           ),
           actions: <Widget>[
             TextButton(
@@ -232,6 +232,7 @@ class Prompt extends StatelessWidget {
                     controller: myController,
                     maxLines: null,
                     decoration: const InputDecoration(
+                      hintText: 'Prompt...',
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10))),
                       isDense: true,
@@ -246,14 +247,30 @@ class Prompt extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(minimumSize: const Size(45, 45)),
             onPressed: () => {
-              sendMessage(
-                  controller: myController, chat: chat, context: context),
-              appState.update(),
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => currentChatView),
-              ),
+              if ((myController.text).isNotEmpty)
+                {
+                  sendMessage(
+                    controller: myController,
+                    chat: chat,
+                    context: context,
+                    isSender: true,
+                  ),
+                  appState.update(),
+                  sendMessage(
+                    controller: myController,
+                    chat: chat,
+                    context: context,
+                    isSender: false,
+                  ),
+                  appState.update(),
+                  Future.delayed(const Duration(seconds: 1), () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) => currentChatView),
+                    );
+                  }),
+                }
             },
             child: const Icon(Icons.send),
           ),
@@ -263,16 +280,32 @@ class Prompt extends StatelessWidget {
     );
   }
 
-  void sendMessage(
+  Future<void> sendMessage(
       {required TextEditingController controller,
       required Chat chat,
-      required BuildContext context}) {
-    if (controller.text.isNotEmpty) {
+      required BuildContext context,
+      required bool isSender}) async {
+    dynamic text;
+    if (!isSender) {
+      Future.delayed(const Duration(seconds: 1), () async {
+        text = await GPT.sendMessage(prompt: controller.text);
+
+        Widget bubble = BubbleSpecialThree(
+          text: text.toString(),
+          color: const Color(0xFF48748A),
+          tail: true,
+          isSender: isSender,
+          textStyle: const TextStyle(color: Colors.white, fontSize: 16),
+        );
+        chat.addMessage(bubble: bubble);
+      });
+    } else {
+      text = controller.text;
       Widget bubble = BubbleSpecialThree(
-        text: controller.text,
-        color: Colors.blueGrey,
+        text: text.toString(),
+        color: const Color(0xFF48748A),
         tail: true,
-        isSender: true,
+        isSender: isSender,
         textStyle: const TextStyle(color: Colors.white, fontSize: 16),
       );
       chat.addMessage(bubble: bubble);

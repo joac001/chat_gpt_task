@@ -57,11 +57,9 @@ class AppState extends ChangeNotifier {
 
   void removeChat({required chat}) {
     for (Chat c in chats) {
-      if (chat.index == c.index) {
-        chats.removeAt(c.index);
-        notifyListeners();
-        break;
-      }
+      chats.remove(c);
+      notifyListeners();
+      break;
     }
   }
 }
