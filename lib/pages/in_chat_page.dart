@@ -250,22 +250,26 @@ class Prompt extends StatelessWidget {
               if ((myController.text).isNotEmpty)
                 {
                   sendMessage(
-                      text: myController.text,
-                      chat: chat,
-                      context: context,
-                      isSender: true),
+                    controller: myController,
+                    chat: chat,
+                    context: context,
+                    isSender: true,
+                  ),
                   appState.update(),
                   sendMessage(
-                      text: (GPT.sendMessage(prompt: myController.text))
-                          .toString(),
-                      chat: chat,
-                      context: context,
-                      isSender: false),
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => currentChatView),
+                    controller: myController,
+                    chat: chat,
+                    context: context,
+                    isSender: false,
                   ),
+                  appState.update(),
+                  Future.delayed(const Duration(seconds: 1), () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) => currentChatView),
+                    );
+                  }),
                 }
             },
             child: const Icon(Icons.send),
@@ -276,18 +280,35 @@ class Prompt extends StatelessWidget {
     );
   }
 
-  void sendMessage(
-      {required String text,
+  Future<void> sendMessage(
+      {required TextEditingController controller,
       required Chat chat,
       required BuildContext context,
-      required bool isSender}) {
-    Widget bubble = BubbleSpecialThree(
-      text: text.toString(),
-      color: const Color(0xFF48748A),
-      tail: true,
-      isSender: isSender,
-      textStyle: const TextStyle(color: Colors.white, fontSize: 16),
-    );
-    chat.addMessage(bubble: bubble);
+      required bool isSender}) async {
+    dynamic text;
+    if (!isSender) {
+      Future.delayed(const Duration(seconds: 1), () async {
+        text = await GPT.sendMessage(prompt: controller.text);
+
+        Widget bubble = BubbleSpecialThree(
+          text: text.toString(),
+          color: const Color(0xFF48748A),
+          tail: true,
+          isSender: isSender,
+          textStyle: const TextStyle(color: Colors.white, fontSize: 16),
+        );
+        chat.addMessage(bubble: bubble);
+      });
+    } else {
+      text = controller.text;
+      Widget bubble = BubbleSpecialThree(
+        text: text.toString(),
+        color: const Color(0xFF48748A),
+        tail: true,
+        isSender: isSender,
+        textStyle: const TextStyle(color: Colors.white, fontSize: 16),
+      );
+      chat.addMessage(bubble: bubble);
+    }
   }
 }
