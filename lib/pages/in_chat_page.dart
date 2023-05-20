@@ -305,7 +305,7 @@ class Prompt extends StatelessWidget {
 
         Widget bubble = BubbleSpecialThree(
           text: text,
-          color: const Color(0xFF48748A),
+          color: const Color(0xFF2A5B74),
           tail: true,
           isSender: isSender,
           textStyle: const TextStyle(color: Colors.white, fontSize: 16),
@@ -317,7 +317,7 @@ class Prompt extends StatelessWidget {
     } else {
       Widget bubble = BubbleSpecialThree(
         text: prompt,
-        color: const Color(0xFF48748A),
+        color: const Color(0xFF45758B),
         tail: true,
         isSender: isSender,
         textStyle: const TextStyle(color: Colors.white, fontSize: 16),

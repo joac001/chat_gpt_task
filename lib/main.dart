@@ -7,8 +7,8 @@ import './pages/chat_list_page.dart';
 // OBJECTS
 import 'objects/chat.dart';
 
-const primaryColor = Color(0xFF09385F); // AppBar - Icons
-const backgroundColor = Color(0xFF286485); // Scaffold background
+const primaryColor = Color.fromARGB(255, 32, 96, 148); // AppBar - Icons
+const backgroundColor = Color(0xFF4688AC); // Scaffold background
 
 void main() {
   runApp(const MyApp());

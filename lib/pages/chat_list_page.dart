@@ -19,9 +19,14 @@ class ChatList extends StatelessWidget {
       body: Column(
         children: [
           AppBar(
-            title: const Text(
-              'Whats up gpt?',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            title: const Center(
+              child: Text(
+                "What's up gpt?",
+                style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                    fontSize: 18),
+              ),
             ),
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
@@ -165,14 +170,23 @@ class NavBar extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: theme.colorScheme.primary,
               foregroundColor: theme.colorScheme.inversePrimary,
-              elevation: 0,
+              elevation: 5,
               minimumSize: const Size(75, 75),
+              side: const BorderSide(
+                width: 0.5,
+                // color: Colors.black45,
+                color: Colors.white,
+              ),
             ),
             onPressed: () => {
               appState.initChat(),
               appState.addChat(chat: appState.c),
             },
-            child: const Icon(Icons.add, size: 30),
+            child: const Icon(
+              Icons.add,
+              size: 30,
+              color: Colors.white,
+            ),
           ),
         ],
       ),
