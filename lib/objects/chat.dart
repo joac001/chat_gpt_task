@@ -9,7 +9,7 @@ class Chat {
   });
 
   List<Message> messages = <Message>[];
-  List<Widget> bubbleList = <Widget>[];
+
   String title;
   int index;
 
@@ -28,11 +28,10 @@ class Chat {
   void addMessage({required Widget bubble}) {
     Message message = Message(bubble: bubble);
     messages.add(message);
-    bubbleList.add(message.bubble);
   }
 
-  List<Widget> getMessagesList() {
-    return bubbleList;
+  List<Message> getMessagesList() {
+    return messages.reversed.toList();
   }
 
   void setTitle({required newTitle}) {

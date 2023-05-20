@@ -28,7 +28,9 @@ class ChatView extends StatelessWidget {
             ChatTitle(chat: chat),
 
             // MESAGGES VIEW
-            Expanded(child: MessageList(chat: chat)),
+            Expanded(
+                child: MessageList(
+                    chat: chat, scrollController: ScrollController())),
 
             // PROMT INPUT BELOW
             Prompt(chat: chat, currentChatView: this),
@@ -187,9 +189,11 @@ class EditTitle extends StatelessWidget {
 }
 
 class MessageList extends StatelessWidget {
-  const MessageList({super.key, required this.chat});
+  const MessageList(
+      {super.key, required this.chat, required this.scrollController});
 
   final Chat chat;
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -197,16 +201,30 @@ class MessageList extends StatelessWidget {
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height - 140,
       child: ListView(
+        // controller: scrollController,
+        reverse: true,
         children: [
-          for (var bubble in chat.bubbleList) bubble,
+          for (var message in chat.getMessagesList()) message.bubble,
         ],
       ),
+    );
+  }
+
+  void scrollDown() {
+    scrollController.animateTo(
+      scrollController.position.minScrollExtent,
+      duration: const Duration(seconds: 2),
+      curve: Curves.fastOutSlowIn,
     );
   }
 }
 
 class Prompt extends StatelessWidget {
-  const Prompt({super.key, required this.chat, required this.currentChatView});
+  const Prompt({
+    super.key,
+    required this.chat,
+    required this.currentChatView,
+  });
 
   final Chat chat;
   final ChatView currentChatView;
@@ -215,6 +233,8 @@ class Prompt extends StatelessWidget {
   Widget build(BuildContext context) {
     final myController = TextEditingController();
     var appState = context.watch<AppState>();
+
+    late String currentPrompt;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -249,27 +269,26 @@ class Prompt extends StatelessWidget {
             onPressed: () => {
               if ((myController.text).isNotEmpty)
                 {
+                  currentPrompt = myController.text,
                   sendMessage(
-                    controller: myController,
+                    prompt: currentPrompt,
                     chat: chat,
                     context: context,
                     isSender: true,
+                    appState: appState,
                   ),
-                  appState.update(),
                   sendMessage(
-                    controller: myController,
+                    prompt: currentPrompt,
                     chat: chat,
                     context: context,
                     isSender: false,
+                    appState: appState,
                   ),
-                  appState.update(),
-                  Future.delayed(const Duration(seconds: 1), () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (BuildContext context) => currentChatView),
-                    );
-                  }),
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => currentChatView),
+                  ),
                 }
             },
             child: const Icon(Icons.send),
@@ -280,35 +299,50 @@ class Prompt extends StatelessWidget {
     );
   }
 
-  Future<void> sendMessage(
-      {required TextEditingController controller,
-      required Chat chat,
-      required BuildContext context,
-      required bool isSender}) async {
-    dynamic text;
+  Future<void> sendMessage({
+    required String prompt,
+    required Chat chat,
+    required BuildContext context,
+    required bool isSender,
+    required AppState appState,
+  }) async {
     if (!isSender) {
-      Future.delayed(const Duration(seconds: 1), () async {
-        text = await GPT.sendMessage(prompt: controller.text);
+      dynamic response = await GPT.sendMessage(prompt: prompt);
+      Future.delayed(const Duration(seconds: 2), () async {
+        String text = response['choices'][0]['text'];
+        text = text.trim();
 
         Widget bubble = BubbleSpecialThree(
-          text: text.toString(),
+          text: text,
           color: const Color(0xFF48748A),
           tail: true,
           isSender: isSender,
           textStyle: const TextStyle(color: Colors.white, fontSize: 16),
         );
+
         chat.addMessage(bubble: bubble);
+        _updateChat(context: context, appState: appState);
       });
     } else {
-      text = controller.text;
       Widget bubble = BubbleSpecialThree(
-        text: text.toString(),
+        text: prompt,
         color: const Color(0xFF48748A),
         tail: true,
         isSender: isSender,
         textStyle: const TextStyle(color: Colors.white, fontSize: 16),
       );
+
       chat.addMessage(bubble: bubble);
+      _updateChat(context: context, appState: appState);
     }
+  }
+
+  void _updateChat(
+      {required BuildContext context, required AppState appState}) {
+    appState.update();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (BuildContext context) => currentChatView),
+    );
   }
 }
