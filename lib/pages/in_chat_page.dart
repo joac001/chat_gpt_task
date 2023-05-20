@@ -28,9 +28,7 @@ class ChatView extends StatelessWidget {
             ChatTitle(chat: chat),
 
             // MESAGGES VIEW
-            Expanded(
-                child: MessageList(
-                    chat: chat, scrollController: ScrollController())),
+            Expanded(child: MessageList(chat: chat)),
 
             // PROMT INPUT BELOW
             Prompt(chat: chat, currentChatView: this),
@@ -63,12 +61,22 @@ class ChatTitle extends StatelessWidget {
             height: 50,
             child: Card(
               child: Center(
-                child: Text(
-                  chat.title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w300,
-                  ),
+                child: Row(
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          elevation: 0, backgroundColor: Colors.transparent),
+                      onPressed: () => {Navigator.pop(context)},
+                      child: const Icon(Icons.arrow_back),
+                    ),
+                    Text(
+                      chat.title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -189,11 +197,9 @@ class EditTitle extends StatelessWidget {
 }
 
 class MessageList extends StatelessWidget {
-  const MessageList(
-      {super.key, required this.chat, required this.scrollController});
+  const MessageList({super.key, required this.chat});
 
   final Chat chat;
-  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -201,20 +207,11 @@ class MessageList extends StatelessWidget {
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height - 140,
       child: ListView(
-        // controller: scrollController,
         reverse: true,
         children: [
           for (var message in chat.getMessagesList()) message.bubble,
         ],
       ),
-    );
-  }
-
-  void scrollDown() {
-    scrollController.animateTo(
-      scrollController.position.minScrollExtent,
-      duration: const Duration(seconds: 2),
-      curve: Curves.fastOutSlowIn,
     );
   }
 }
@@ -244,21 +241,19 @@ class Prompt extends StatelessWidget {
           SizedBox(
             width: MediaQuery.of(context).size.width - 90,
             height: 100,
-            child: Expanded(
-              child: Container(
-                alignment: Alignment.center,
-                child: Card(
-                  child: TextField(
-                    controller: myController,
-                    maxLines: null,
-                    decoration: const InputDecoration(
-                      hintText: 'Prompt...',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
-                      isDense: true,
-                      contentPadding: EdgeInsets.only(
-                          left: 5, bottom: 15, top: 15, right: 5),
-                    ),
+            child: Container(
+              alignment: Alignment.center,
+              child: Card(
+                child: TextField(
+                  controller: myController,
+                  maxLines: null,
+                  decoration: const InputDecoration(
+                    hintText: 'Prompt...',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    isDense: true,
+                    contentPadding:
+                        EdgeInsets.only(left: 5, bottom: 15, top: 15, right: 5),
                   ),
                 ),
               ),
@@ -284,11 +279,6 @@ class Prompt extends StatelessWidget {
                     isSender: false,
                     appState: appState,
                   ),
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => currentChatView),
-                  ),
                 }
             },
             child: const Icon(Icons.send),
@@ -308,6 +298,7 @@ class Prompt extends StatelessWidget {
   }) async {
     if (!isSender) {
       dynamic response = await GPT.sendMessage(prompt: prompt);
+
       Future.delayed(const Duration(seconds: 2), () async {
         String text = response['choices'][0]['text'];
         text = text.trim();
@@ -321,7 +312,7 @@ class Prompt extends StatelessWidget {
         );
 
         chat.addMessage(bubble: bubble);
-        _updateChat(context: context, appState: appState);
+        _updateChat(context: context, appState: appState, chat: chat);
       });
     } else {
       Widget bubble = BubbleSpecialThree(
@@ -333,16 +324,24 @@ class Prompt extends StatelessWidget {
       );
 
       chat.addMessage(bubble: bubble);
-      _updateChat(context: context, appState: appState);
+      _updateChat(context: context, appState: appState, chat: chat);
     }
   }
 
   void _updateChat(
-      {required BuildContext context, required AppState appState}) {
+      {required BuildContext context,
+      required AppState appState,
+      required chat}) {
     appState.update();
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (BuildContext context) => currentChatView),
+      MaterialPageRoute(
+        builder: (BuildContext context) =>
+            ChangeNotifierProvider<AppState>.value(
+          value: Provider.of<AppState>(context),
+          child: ChatView(chat: chat),
+        ),
+      ),
     );
   }
 }

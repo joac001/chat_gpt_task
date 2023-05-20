@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 const endPoint = 'https://api.openai.com/v1/';
-const token = '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'; //! API KEY
+const token = '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'; //! API KEY
 
 class GPT {
   static var client = http.Client();
@@ -16,7 +16,7 @@ class GPT {
     request.body = json.encode({
       "model": "text-davinci-003",
       "prompt": prompt,
-      "temperature": 0.6,
+      "temperature": 0.4,
       "max_tokens": 2000
     });
     request.headers.addAll(headers);
